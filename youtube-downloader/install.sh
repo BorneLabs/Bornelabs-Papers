@@ -29,7 +29,7 @@ TERMUX_HOME="/data/data/com.termux/files/home"
 BIN_DIR="${TERMUX_HOME}/bin"
 OUTPUT_PATH="${TERMUX_HOME}/storage/shared/Youtube"
 
-printf "${GREEN}Retrieving package lists and updating…${RESET}\n"
+printf "${GREEN}=== Retrieving package lists and updating…${RESET}\n"
 apt-get update && apt-get upgrade -y
 
 # Ensure storage permission is granted (so ~/storage/shared becomes available).
@@ -114,7 +114,7 @@ if [ "$USER_ANS" = "Y" ] || [ -z "$USER_ANS" ]; then
   pkg install termux-api -y
   if [ $? -eq 0 ]; then
     printf "${GREEN_B}termux-api installed successfully.${RESET}\n"
-    printf "${YELLOW}Reminder: You still need the Termux:API APK to let termux-media-scan work.\n${RESET}"
+    printf "${YELLOW}Reminder: You still need the Termux:API APK to let termux-media-scan work.${RESET}\n"
   else
     printf "${RED_B}An error occurred while installing termux-api.${RESET}\n"
   fi
@@ -125,4 +125,5 @@ fi
 printf "\n${CYAN_B}Installation Complete!${RESET}\n"
 printf "${CYAN}Open a YouTube video → Share → Termux → choose a quality → Download will start automatically.${RESET}\n"
 printf "${GREEN}@Bornelabs Papers — Youtube Downloader${RESET}\n"
+
 
