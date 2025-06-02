@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 #
 # —————————————————————————
-#  Termux-YTD (fixed format selectors)
+#  Termux-YTD (fixed format selectors + merge)
 # —————————————————————————
 
 # COLORS
@@ -29,6 +29,7 @@ if ! command -v yt-dlp >/dev/null 2>&1; then
   exit 1
 fi
 
+# Ensure the output folder exists
 OUTPUT_PATH="/storage/emulated/0/Youtube"
 mkdir -p "${OUTPUT_PATH}" 2>/dev/null
 
@@ -99,42 +100,47 @@ case "$option" in
       "$URL"
     ;;
   2)
-    #  — Best video ≤360p, plus best audio (fallback to best[height<=360] if mux not possible)
+    #  — Best video ≤360p + best audio, then merge to mp4
     yt-dlp \
       --no-warnings \
       -f "bestvideo[height<=360]+bestaudio/best[height<=360]" \
+      --merge-output-format mp4 \
       -o "${OUTPUT_PATH}/%(title)s.%(ext)s" \
       "$URL"
     ;;
   3)
-    #  — Best video ≤480p
+    #  — Best video ≤480p + best audio, then merge to mp4
     yt-dlp \
       --no-warnings \
       -f "bestvideo[height<=480]+bestaudio/best[height<=480]" \
+      --merge-output-format mp4 \
       -o "${OUTPUT_PATH}/%(title)s.%(ext)s" \
       "$URL"
     ;;
   4)
-    #  — Best video ≤720p
+    #  — Best video ≤720p + best audio, then merge to mp4
     yt-dlp \
       --no-warnings \
       -f "bestvideo[height<=720]+bestaudio/best[height<=720]" \
+      --merge-output-format mp4 \
       -o "${OUTPUT_PATH}/%(title)s.%(ext)s" \
       "$URL"
     ;;
   5)
-    #  — Best video ≤1080p
+    #  — Best video ≤1080p + best audio, then merge to mp4
     yt-dlp \
       --no-warnings \
       -f "bestvideo[height<=1080]+bestaudio/best[height<=1080]" \
+      --merge-output-format mp4 \
       -o "${OUTPUT_PATH}/%(title)s.%(ext)s" \
       "$URL"
     ;;
   6)
-    #  — Best video ≤2160p (4K)
+    #  — Best video ≤2160p (4K) + best audio, then merge to mp4
     yt-dlp \
       --no-warnings \
       -f "bestvideo[height<=2160]+bestaudio/best[height<=2160]" \
+      --merge-output-format mp4 \
       -o "${OUTPUT_PATH}/%(title)s.%(ext)s" \
       "$URL"
     ;;
@@ -168,4 +174,3 @@ fi
 
 printf "${MAGENTA_B}Program completed. Press any key to exit.${RESET}\n"
 read -r x
-
