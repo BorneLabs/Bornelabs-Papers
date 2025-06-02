@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # —————————————————————————
-#  Termux-YTD (fixed second version)
+#  Termux-YTD (fixed format selectors)
 # —————————————————————————
 #
 
@@ -24,13 +24,16 @@ RED_B="\e[01;31m"
 # RESET
 RESET="\e[0m"
 
-clear
+# If yt-dlp isn’t installed, exit immediately
 command -v yt-dlp >/dev/null 2>&1 || {
-  printf "${RED_B}Please install yt-dlp manually or run the install.sh script again.\n${RESET}"
+  printf "${RED_B}Please install yt-dlp first (e.g. pkg install yt-dlp) or run install.sh.\n${RESET}"
   exit 1
 }
 
 OUTPUT_PATH="/storage/emulated/0/Youtube"
+mkdir -p "${OUTPUT_PATH}" 2>/dev/null
+
+clear
 
 # — New ASCII Art Banner (in RED) —
 cat <<EOF
@@ -61,12 +64,12 @@ echo -e "${RED}║ ♚ Paper   : Youtube Downloader         ║"
 echo -e "${GREEN}║ ♚ Author  : @BrianxBorne               ║"
 echo -e "${CYAN}╠════════════════════════════════════════╝"
 echo -e "${CYAN}╠═▶ [𝗦𝗲𝗹𝗲𝗰𝘁 𝗔 𝗙𝗼𝗿𝗺𝗮𝘁]  ➳"
-echo -e "${GREEN}╠═▶ 1. Music Mp3♫"
-echo -e "${GREEN}╠═▶ 2. Video 360p"
-echo -e "${GREEN}╠═▶ 3. Video 480p"
-echo -e "${GREEN}╠═▶ 4. Video 720p"
-echo -e "${GREEN}╠═▶ 5. Video 1080p"
-echo -e "${GREEN}╠═▶ 6. Video 2160p"
+echo -e "${GREEN}╠═▶ 1. Music (mp3)"
+echo -e "${GREEN}╠═▶ 2. Video 360p"
+echo -e "${GREEN}╠═▶ 3. Video 480p"
+echo -e "${GREEN}╠═▶ 4. Video 720p"
+echo -e "${GREEN}╠═▶ 5. Video 1080p"
+echo -e "${GREEN}╠═▶ 6. Video 2160p (4K)”
 echo -e "${GREEN}╠═▶ 7. Exit Termux-YTD"
 printf "${GREEN} ╚═:➤  ${RESET}"
 read -r option
@@ -77,34 +80,82 @@ if [[ -z "$option" ]]; then
   exit 1
 fi
 
+# Make sure a URL was provided as $1
+if [[ -z "$1" ]]; then
+  printf "${RED_B}You must pass a YouTube URL as the first argument.\nUsage: %s <youtube-url>\n${RESET}" "$0"
+  exit 1
+fi
+
+URL="$1"
+
 case "$option" in
   1)
-    yt-dlp -f 140 "$1"
+    #  — Extract audio, convert to MP3
+    yt-dlp \
+      --no-warnings \
+      -x \
+      --audio-format mp3 \
+      --audio-quality 0 \
+      -o "${OUTPUT_PATH}/%(title)s.%(ext)s" \
+      "$URL"
     ;;
+
   2)
-    yt-dlp -f "best[height<=360]" "$1"
+    #  — Best video ≤360p, plus best audio (fallback to best[height<=360] if mux not possible)
+    yt-dlp \
+      --no-warnings \
+      -f "bestvideo[height<=360]+bestaudio/best[height<=360]" \
+      -o "${OUTPUT_PATH}/%(title)s.%(ext)s" \
+      "$URL"
     ;;
+
   3)
-    yt-dlp -f "best[height<=480]" "$1"
+    #  — Best video ≤480p
+    yt-dlp \
+      --no-warnings \
+      -f "bestvideo[height<=480]+bestaudio/best[height<=480]" \
+      -o "${OUTPUT_PATH}/%(title)s.%(ext)s" \
+      "$URL"
     ;;
+
   4)
-    yt-dlp -f "best[height<=720]" "$1"
+    #  — Best video ≤720p
+    yt-dlp \
+      --no-warnings \
+      -f "bestvideo[height<=720]+bestaudio/best[height<=720]" \
+      -o "${OUTPUT_PATH}/%(title)s.%(ext)s" \
+      "$URL"
     ;;
+
   5)
-    yt-dlp -f "best[height<=1080]" "$1"
+    #  — Best video ≤1080p
+    yt-dlp \
+      --no-warnings \
+      -f "bestvideo[height<=1080]+bestaudio/best[height<=1080]" \
+      -o "${OUTPUT_PATH}/%(title)s.%(ext)s" \
+      "$URL"
     ;;
+
   6)
-    yt-dlp -f "best[height<=2160]" "$1"
+    #  — Best video ≤2160p (4K)
+    yt-dlp \
+      --no-warnings \
+      -f "bestvideo[height<=2160]+bestaudio/best[height<=2160]" \
+      -o "${OUTPUT_PATH}/%(title)s.%(ext)s" \
+      "$URL"
     ;;
+
   7)
     exit 0
     ;;
+
   *)
     printf "${RED_B}Invalid option! Exiting.${RESET}\n"
     exit 1
     ;;
 esac
 
+# Check exit code
 if [ $? -eq 0 ]; then
   printf "${GREEN_B}Files correctly downloaded at ${OUTPUT_PATH}!${RESET}\n"
 else
@@ -112,13 +163,14 @@ else
   exit 1
 fi
 
+# If running inside Termux with TERMUX_API_VERSION set, scan media
 if [ "$(echo -n "$TERMUX_API_VERSION" | wc -c)" -gt 1 ]; then
-  printf "${YELLOW_B}Scanning ${OUTPUT_PATH}${RESET}\n"
+  printf "${YELLOW_B}Scanning ${OUTPUT_PATH}…${RESET}\n"
   termux-media-scan -v -r "${OUTPUT_PATH}"
   if [ $? -eq 0 ]; then
     printf "${GREEN_B}${OUTPUT_PATH} correctly scanned${RESET}\n"
   else
-    printf "${RED_B}An error occurred during the ${OUTPUT_PATH} scanning${RESET}\n"
+    printf "${RED_B}An error occurred during ${OUTPUT_PATH} scanning${RESET}\n"
   fi
 fi
 
