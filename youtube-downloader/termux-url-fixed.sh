@@ -1,9 +1,8 @@
-#!/usr/bin/env bash
+#!/data/data/com.termux/files/usr/bin/bash
 #
 # —————————————————————————
 #  Termux-YTD (fixed format selectors)
 # —————————————————————————
-#
 
 # COLORS
 GREEN="\e[32m"
@@ -25,10 +24,10 @@ RED_B="\e[01;31m"
 RESET="\e[0m"
 
 # If yt-dlp isn’t installed, exit immediately
-command -v yt-dlp >/dev/null 2>&1 || {
-  printf "${RED_B}Please install yt-dlp first (e.g. pkg install yt-dlp) or run install.sh.\n${RESET}"
+if ! command -v yt-dlp >/dev/null 2>&1; then
+  printf "${RED_B}Error:${RESET} yt-dlp not found. Please run the installer or 'pip install yt-dlp'.\n"
   exit 1
-}
+fi
 
 OUTPUT_PATH="/storage/emulated/0/Youtube"
 mkdir -p "${OUTPUT_PATH}" 2>/dev/null
@@ -69,7 +68,7 @@ echo -e "${GREEN}╠═▶ 2. Video 360p"
 echo -e "${GREEN}╠═▶ 3. Video 480p"
 echo -e "${GREEN}╠═▶ 4. Video 720p"
 echo -e "${GREEN}╠═▶ 5. Video 1080p"
-echo -e "${GREEN}╠═▶ 6. Video 2160p (4K)”
+echo -e "${GREEN}╠═▶ 6. Video 2160p (4K)"
 echo -e "${GREEN}╠═▶ 7. Exit Termux-YTD"
 printf "${GREEN} ╚═:➤  ${RESET}"
 read -r option
@@ -82,7 +81,7 @@ fi
 
 # Make sure a URL was provided as $1
 if [[ -z "$1" ]]; then
-  printf "${RED_B}You must pass a YouTube URL as the first argument.\nUsage: %s <youtube-url>\n${RESET}" "$0"
+  printf "${RED_B}Error:${RESET} You must pass a YouTube URL as the first argument.\nUsage: %s <youtube-url>\n" "$0"
   exit 1
 fi
 
@@ -99,7 +98,6 @@ case "$option" in
       -o "${OUTPUT_PATH}/%(title)s.%(ext)s" \
       "$URL"
     ;;
-
   2)
     #  — Best video ≤360p, plus best audio (fallback to best[height<=360] if mux not possible)
     yt-dlp \
@@ -108,7 +106,6 @@ case "$option" in
       -o "${OUTPUT_PATH}/%(title)s.%(ext)s" \
       "$URL"
     ;;
-
   3)
     #  — Best video ≤480p
     yt-dlp \
@@ -117,7 +114,6 @@ case "$option" in
       -o "${OUTPUT_PATH}/%(title)s.%(ext)s" \
       "$URL"
     ;;
-
   4)
     #  — Best video ≤720p
     yt-dlp \
@@ -126,7 +122,6 @@ case "$option" in
       -o "${OUTPUT_PATH}/%(title)s.%(ext)s" \
       "$URL"
     ;;
-
   5)
     #  — Best video ≤1080p
     yt-dlp \
@@ -135,7 +130,6 @@ case "$option" in
       -o "${OUTPUT_PATH}/%(title)s.%(ext)s" \
       "$URL"
     ;;
-
   6)
     #  — Best video ≤2160p (4K)
     yt-dlp \
@@ -144,11 +138,9 @@ case "$option" in
       -o "${OUTPUT_PATH}/%(title)s.%(ext)s" \
       "$URL"
     ;;
-
   7)
     exit 0
     ;;
-
   *)
     printf "${RED_B}Invalid option! Exiting.${RESET}\n"
     exit 1
@@ -164,7 +156,7 @@ else
 fi
 
 # If running inside Termux with TERMUX_API_VERSION set, scan media
-if [ "$(echo -n "$TERMUX_API_VERSION" | wc -c)" -gt 1 ]; then
+if [ -n "$TERMUX_API_VERSION" ]; then
   printf "${YELLOW_B}Scanning ${OUTPUT_PATH}…${RESET}\n"
   termux-media-scan -v -r "${OUTPUT_PATH}"
   if [ $? -eq 0 ]; then
@@ -176,3 +168,4 @@ fi
 
 printf "${MAGENTA_B}Program completed. Press any key to exit.${RESET}\n"
 read -r x
+
