@@ -1,10 +1,10 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 # @Bornelabs Papers
-# Coded by: BrianxBorne 
-# Github: https://github.com/BorneLabs/Bornelabs-Papers
-# Date : 02/06/2025
+# Coded by: BrianxBorne (updated 02/06/2025)
+# Github:  https://github.com/BorneLabs/Bornelabs-Papers
 
+# ──────────────────────────────────────────────────────────────────────────────
 # COLORS
 GREEN="\e[32m"
 CYAN="\e[36m"
@@ -23,85 +23,106 @@ RED_B="\e[01;31m"
 
 # RESET
 RESET="\e[0m"
+# ──────────────────────────────────────────────────────────────────────────────
 
 TERMUX_HOME="/data/data/com.termux/files/home"
+BIN_DIR="${TERMUX_HOME}/bin"
+OUTPUT_PATH="${TERMUX_HOME}/storage/shared/Youtube"
 
-# Make sure we are up to date.
-printf "${GREEN}Retrieving package lists and updating${RESET}\n"
+printf "${GREEN}Retrieving package lists and updating…${RESET}\n"
 apt-get update && apt-get upgrade -y
 
-# If the storage directory does not exist, run termux-setup-storage.
+# Ensure storage permission is granted (so ~/storage/shared becomes available).
 if [ ! -d "${TERMUX_HOME}/storage" ]; then
-  printf "${YELLOW}Requesting access to storage${RESET}\n"
-  sleep 2
+  printf "${YELLOW}Requesting access to storage…${RESET}\n"
+  sleep 1
   termux-setup-storage
 fi
 
-# Install python if it is not already.
-if ! apt-cache pkgnames | grep "^python$" &>/dev/null; then
-  printf "${CYAN}Installing python${RESET}\n"
-  sleep 2
+# Install python (if missing)
+if ! apt-cache pkgnames | grep -xq "python"; then
+  printf "${CYAN}Installing python…${RESET}\n"
+  sleep 1
   apt-get install python -y
+else
+  printf "${GREEN_B}Python is already installed.${RESET}\n"
 fi
 
-# Install the yt-dlp python module if it isn't installed.
-if ! pip list | grep "^yt-dlp" &>/dev/null; then
-  printf "${CYAN}Installing yt-dlp${RESET}\n"
-  sleep 2
+# Install pip (if missing)
+if ! command -v pip >/dev/null 2>&1; then
+  printf "${CYAN}Installing pip…${RESET}\n"
+  sleep 1
+  apt-get install python-pip -y
+else
+  printf "${GREEN_B}pip is already installed.${RESET}\n"
+fi
+
+# Install yt-dlp (via pip) if not present
+if ! pip show yt-dlp >/dev/null 2>&1; then
+  printf "${CYAN}Installing yt-dlp…${RESET}\n"
+  sleep 1
   pip install yt-dlp
+else
+  printf "${GREEN_B}yt-dlp is already installed via pip.${RESET}\n"
 fi
 
-# Create the output directory if needed.
-OUTPUT_PATH="${TERMUX_HOME}/storage/shared/Youtube"
+# Create the shared “Youtube” folder if needed
 if [ ! -d "${OUTPUT_PATH}" ]; then
-  printf "${CYAN}Creating output directory at \"${OUTPUT_PATH}\"${RESET}\n"
-  sleep 2
-  mkdir "${OUTPUT_PATH}"
+  printf "${CYAN}Creating output directory at \"${OUTPUT_PATH}\"…${RESET}\n"
+  sleep 1
+  mkdir -p "${OUTPUT_PATH}"
+else
+  printf "${GREEN_B}Output directory already exists: ${OUTPUT_PATH}${RESET}\n"
 fi
 
-# Create the directory for our config file.
-CONFIG_FOLDER="${TERMUX_HOME}/.yt-dlp"
-if [ ! -d "${CONFIG_FOLDER}" ]; then
-  printf "${CYAN}Creating config directory for yt-dlp${RESET}\n"
-  sleep 2
-  mkdir -p "${CONFIG_FOLDER}"
+# Create ~/bin if it doesn’t exist
+mkdir -p "${BIN_DIR}"
+
+# Copy our downloader script into ~/bin/termux-url-opener
+#
+# Expectation: The user has already placed "termux-ytd-fixed.sh" in the same directory
+# as this install.sh. Adjust the filename below if yours is named differently.
+#
+SCRIPT_SOURCE="termux-ytd-fixed.sh"
+SCRIPT_TARGET="${BIN_DIR}/termux-url-opener"
+
+if [ -f "${SCRIPT_SOURCE}" ]; then
+  printf "${BLUE}Installing Termux-YTD downloader…${RESET}\n"
+  sleep 1
+  cp -f "${SCRIPT_SOURCE}" "${SCRIPT_TARGET}"
+  chmod +x "${SCRIPT_TARGET}"
+  printf "${GREEN_B}Successfully installed: ${SCRIPT_TARGET}${RESET}\n"
+else
+  printf "${RED_B}Error:${RESET} Could not find \"${SCRIPT_SOURCE}\" in this folder.${RESET}\n"
+  printf "${YELLOW}Please make sure you put your fixed downloader script next to install.sh, and name it exactly:\n  ${MAGENTA}\"${SCRIPT_SOURCE}\"${RESET}\n"
+  exit 1
 fi
 
-# Copy the config file for yt-dlp in the valid directory.
-# (If there is already a config file, we ask if the user wants to overwrite it)
-printf "${CYAN}Creating config file for yt-dlp${RESET}\n"
-cp -i config "${CONFIG_FOLDER}/config"
-sleep 1
+# Prompt to install termux-api (so termux-media-scan can work)
+printf "\n${RED_B}WARNING!!!${RESET}\n${YELLOW}By default, downloaded videos won't immediately show up in your system gallery.\n"
+printf "To enable automatic media scanning, you need to:\n"
+printf "  1) Install the Termux:API APK from F-Droid or Play Store\n"
+printf "  2) Install the termux-api package inside Termux\n${RESET}\n"
 
-# Install the url opener.
-printf "${BLUE}Installing Termux-YTD${RESET}\n"
-sleep 2
-mkdir -p "${TERMUX_HOME}/bin"
-cp -f termux-url-opener "${TERMUX_HOME}/bin/termux-url-opener"
-chmod +x "${TERMUX_HOME}/bin/termux-url-opener"
+read -rp "Do you want to install \"termux-api\" right now? (Y/n) " RES
+USER_ANS="${RES^^}"
+USER_ANS="${USER_ANS:0:1}"
 
-# Install the termux API and inform the user about system gallery settings.
-printf "${RED_B}WARNING!!! ${RESET}\n${YELLOW}By default, the videos you download won't appear in your system gallery, and therefore you won't be able to use them.\n"
-printf "To see the video appear in your gallery, you need to install the ${MAGENTA}Termux:API app${RESET} via ${MAGENTA_B}${TERMUX_APK_RELEASE}${RESET}\n"
-
-read -rp "Do you want to install the termux-api package? (yes/y/no/n) " RES
-
-USER_ANS=$(echo "${RES^}" | cut -c 1-1 )
-
-if [ $USER_ANS = "Y" ]; then
-    printf "\n${CYAN}Installing termux-api package${RESET}\n"
-    sleep 2
-    pkg install termux-api
-    if [ $? -eq 0 ]; then
-  	  printf "${GREEN_B}termux-api package successfully installed${RESET}\n"
-  	  printf "${YELLOW}Termux app was installed via ${MAGENTA_B}${TERMUX_APK_RELEASE}${RESET}\n"
-      printf "${YELLOW}You need to install the Termux:API app ${RESET}\n"
-	  else
-  	  printf "${RED_B}An error occurred during termux-api installation${RESET}\n"
-	  fi
-    sleep 2
+if [ "$USER_ANS" = "Y" ] || [ -z "$USER_ANS" ]; then
+  printf "\n${CYAN}Installing termux-api package…${RESET}\n"
+  sleep 1
+  pkg install termux-api -y
+  if [ $? -eq 0 ]; then
+    printf "${GREEN_B}termux-api installed successfully.${RESET}\n"
+    printf "${YELLOW}Reminder: You still need the Termux:API APK to let termux-media-scan work.\n${RESET}"
+  else
+    printf "${RED_B}An error occurred while installing termux-api.${RESET}\n"
+  fi
+else
+  printf "${YELLOW}Skipped termux-api installation. You can install it later with:\n  pkg install termux-api${RESET}\n"
 fi
 
 printf "\n${CYAN_B}Installation Complete!${RESET}\n"
-printf "${CYAN}Open the video you want to download in YouTube, click share, select Termux, choose a quality, and the download will start${RESET}\n"
-printf "${GREEN}@Bornelabs Papers - Youtube Downloader${RESET}\n"
+printf "${CYAN}Open a YouTube video → Share → Termux → choose a quality → Download will start automatically.${RESET}\n"
+printf "${GREEN}@Bornelabs Papers — Youtube Downloader${RESET}\n"
+
