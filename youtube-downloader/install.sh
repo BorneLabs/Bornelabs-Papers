@@ -30,7 +30,7 @@ BIN_DIR="${TERMUX_HOME}/bin"
 OUTPUT_PATH="${TERMUX_HOME}/storage/shared/Youtube"
 
 printf "${GREEN}=== Retrieving package lists and updating…${RESET}\n"
-apt-get update && apt-get upgrade -y
+pkg update -y && pkg upgrade -y
 
 # Ensure storage permission is granted (so ~/storage/shared becomes available).
 if [ ! -d "${TERMUX_HOME}/storage" ]; then
@@ -40,10 +40,10 @@ if [ ! -d "${TERMUX_HOME}/storage" ]; then
 fi
 
 # Install python (if missing)
-if ! apt-cache pkgnames | grep -xq "python"; then
+if ! command -v python >/dev/null 2>&1; then
   printf "${CYAN}Installing python…${RESET}\n"
   sleep 1
-  apt-get install python -y
+  pkg install python -y
 else
   printf "${GREEN_B}Python is already installed.${RESET}\n"
 fi
@@ -52,7 +52,7 @@ fi
 if ! command -v pip >/dev/null 2>&1; then
   printf "${CYAN}Installing pip…${RESET}\n"
   sleep 1
-  apt-get install python-pip -y
+  pkg install python-pip -y
 else
   printf "${GREEN_B}pip is already installed.${RESET}\n"
 fi
@@ -70,7 +70,7 @@ fi
 if ! command -v ffmpeg >/dev/null 2>&1; then
   printf "${CYAN}Installing ffmpeg…${RESET}\n"
   sleep 1
-  apt-get install ffmpeg -y
+  pkg install ffmpeg -y
 else
   printf "${GREEN_B}ffmpeg is already installed.${RESET}\n"
 fi
@@ -134,3 +134,4 @@ fi
 printf "\n${CYAN_B}Installation Complete!${RESET}\n"
 printf "${CYAN}Open a YouTube video → Share → Termux → choose a quality → Download will start automatically.${RESET}\n"
 printf "${GREEN}@Bornelabs Papers — Youtube Downloader${RESET}\n"
+
