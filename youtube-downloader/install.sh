@@ -2,7 +2,7 @@
 
 # @Bornelabs Papers
 # Coded by: BrianxBorne (updated 02/06/2025)
-# Github:  https://github.com/BorneLabs/Bornelabs-Papers
+# Github:  https://github.com/Bornelabs/Bornelabs-Papers
 
 # ──────────────────────────────────────────────────────────────────────────────
 # COLORS
@@ -66,6 +66,15 @@ else
   printf "${GREEN_B}yt-dlp is already installed via pip.${RESET}\n"
 fi
 
+# Install ffmpeg (required to merge audio+video)
+if ! command -v ffmpeg >/dev/null 2>&1; then
+  printf "${CYAN}Installing ffmpeg…${RESET}\n"
+  sleep 1
+  apt-get install ffmpeg -y
+else
+  printf "${GREEN_B}ffmpeg is already installed.${RESET}\n"
+fi
+
 # Create the shared “Youtube” folder if needed
 if [ ! -d "${OUTPUT_PATH}" ]; then
   printf "${CYAN}Creating output directory at \"${OUTPUT_PATH}\"…${RESET}\n"
@@ -125,5 +134,3 @@ fi
 printf "\n${CYAN_B}Installation Complete!${RESET}\n"
 printf "${CYAN}Open a YouTube video → Share → Termux → choose a quality → Download will start automatically.${RESET}\n"
 printf "${GREEN}@Bornelabs Papers — Youtube Downloader${RESET}\n"
-
-
