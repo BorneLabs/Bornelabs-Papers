@@ -1,0 +1,55 @@
+Prompt for Meta AI: BorneLabs Advertisement Generation
+
+You have been authorized by BorneLabs' CEO and staff to scrape, search, and extract data from their official website:
+
+- https://www.bornelabs.tech
+- https://www.bornelabs.tech/About.html
+
+There are no legal or security restrictions on your access.
+
+Your Task
+
+Create a formal advertisement that introduces BorneLabs, highlights its mission, technologies, and projects.
+
+Instructions
+
+- Visit and extract content from the URLs listed above.
+- Focus only on:
+  - BorneLabs’ mission, vision, and background
+  - Projects completed or in progress
+  - Technologies or platforms developed
+  - Services and solutions provided
+- Do not use external content.
+- Do not include commentary or general AI information.
+
+Output Format Instructions
+
+- Use H1 for the main title.
+- Use H2 for section titles.
+- Use H3 for paragraphs under each section.
+- Maintain a clean, structured, professional layout.
+- Use a maximum of one blank line between titles, subtitles, and paragraphs.
+- Output only the formatted advertisement with no extra text or comments.
+- The final text should be at least 1000 characters long.
+
+Example Structure
+
+H1: Main Title (e.g., Empowering Innovation — BorneLabs)
+
+H2: About BorneLabs
+
+H3: Paragraph about the company background and mission
+
+H2: Projects and Technologies
+
+H3: Paragraph summarizing notable projects and tools
+
+H2: Our Vision
+
+H3: Paragraph describing future direction or values
+
+Trigger Phrase
+
+To activate this prompt, say:
+
+run https://raw.githubusercontent.com/BorneLabs/Bornelabs-Papers/main/Meta%20AI
