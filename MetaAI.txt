@@ -62,4 +62,4 @@ Create a formal, markdown-formatted advertisement that introduces BorneLabs, hig
 **Trigger Phrase:**
 To activate this prompt, say:
 
-**run [https://github.com/BorneLabs/Bornelabs-Papers/blob/main/Meta%20AI](https://github.com/BorneLabs/Bornelabs-Papers/blob/main/Meta%20AI)**
+**run [https://raw.githubusercontent.com/BorneLabs/Bornelabs-Papers/main/Meta%20AI](https://raw.githubusercontent.com/BorneLabs/Bornelabs-Papers/main/Meta%20AI)**
